@@ -4,14 +4,14 @@
 # Configuration File
 
 # Location of the inbox folder for files to be sorted. This will also grab files in it's subfolders too. (Files in subfolders may be first in the queue.) It is recommended that this folder start with an underscore so that the rating sort mode will ignore it.
-$sortFolder = "../_zzz-SORT ME"
+$sortFolder = "../___Inbox"
 
 # Destination folder root, the folder that contains all of the genre/tag folders. This is your sorted music library folder.
 $destinationFolder = "../"
 
 # Skipped Folder
 # This is the skipped folder for when you have a song that doesnt' fit your categories, tags, etc. It's a staging folder so that songs can be delt with later.
-$skippedFolder = "zzz-SKIPPED" # This is a child of $destinationFolder
+$skippedFolder = "___Skipped" # This is a child of $destinationFolder
 
 # Sound file to play between songs. Since a file can't be moved/deleted if it's being played, the $waitSong is played to free up the current song to be moved.
 $waitSong = "./empty.flac" 
@@ -59,5 +59,5 @@ $specialCategories = @(
     @("41", "_1980s", "Magenta"),
     @("42", "_Gregorian Chant", "Magenta"),
     @("43", "_Glitchy", "DarkCyan"),
-    @("44", "_Silly", "White")
+    @("44", "_Silly", "White"),
 )

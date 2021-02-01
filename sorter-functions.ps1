@@ -493,7 +493,7 @@ function Skip-Song {
 
     Close-Song
 
-    if (!(Test-Path -Path "$skippedFolder")) {
+    if (!(Test-Path -Path "$destinationFolder/$skippedFolder")) {
         New-Item -Path "$destinationFolder" -Name "$skippedFolder" -ItemType "directory" | Out-Null
     }
     

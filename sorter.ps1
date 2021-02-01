@@ -5,6 +5,8 @@
 
 # Don't edit the source code in this file unless you know what you are doing!
 
+$ErrorActionPreference = "Stop"
+
 . "./sorter-config.ps1"
 . "./sorter-functions.ps1"
 . "./sorter-mode-inbox.ps1"
