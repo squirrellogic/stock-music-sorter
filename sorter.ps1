@@ -7,7 +7,7 @@
 
 . "./sorter-config.ps1"
 . "./sorter-functions.ps1"
-. "./sorter-mode-full.ps1"
+. "./sorter-mode-inbox.ps1"
 . "./sorter-mode-tag.ps1"
 . "./sorter-mode-rating.ps1"
 
@@ -30,19 +30,20 @@ while (!$validSortMode) {
     Write-Host ""
     Write-Host "Enter in the sorting mode you want to use."
     Write-Host ""
-    Write-Host "full " -NoNewline -ForegroundColor Green
-    Write-Host "to enter full genre/tag/rating sorting mode using the default sort folder."
+    Write-Host "inbox " -NoNewline -ForegroundColor Green
+    Write-Host "to sort your inbox folder into genres, tags, and ratings." -ForegroundColor White
     Write-Host "tag " -NoNewline -ForegroundColor Green
-    Write-Host "to enter tag-only sorting mode."
+    Write-Host "to sort songs in destination that are not tagged." -ForegroundColor White
     Write-Host "rating " -NoNewline -ForegroundColor Green
-    Write-Host "to enter rating-only sorting mode."
+    Write-Host "to sort songs that don't have a rating." -ForegroundColor White
     Write-Host ""
+
     $sortModeSelection = Read-Host "> Enter mode"
 
     switch ($sortModeSelection) {
-        "full" { 
+        "inbox" { 
             $validSortMode = $TRUE
-            Invoke-FullSort
+            Invoke-InboxSort
         }
         "tag" { 
             $validSortMode = $TRUE

@@ -161,19 +161,74 @@ function Show-Genres {
     Write-Host "" 
 }
 
+function Show-Tags {
+    <#
+    .SYNOPSIS
+    Displays the tag lists.
+    #>
+
+    Clear-Host
+
+    # Display current song
+    $songName = $song.Name
+    Write-Host "Now playing... " -NoNewLine -ForegroundColor DarkGray
+    Write-Host "$songName" -ForegroundColor White
+    Write-Host "" 
+    
+    # Find longest tag names
+    $longestTag = 0
+    foreach ($tag in $tags) {
+        if ($tag[1].length -gt $longestTag) {
+            $longestTag = $tag[1].length
+        }
+    }
+
+    # Display Header
+    Write-Host "Tags" -ForegroundColor DarkGray
+
+    # Display all tags.
+    for ($i = 0; ($i -lt $tags.Count); $i++) {
+        # Tag
+        if ($i -lt $tags.Count) {
+            Write-Host "[" -NoNewline -ForegroundColor DarkGray
+            if ($tagSelections[$i]) {
+                Write-Host "X" -NoNewline -ForegroundColor $tags[$i][2]
+            }
+            else {
+                Write-Host " " -NoNewline
+            }
+            Write-Host "]" -NoNewline -ForegroundColor DarkGray
+            Write-Host " " -NoNewline
+            if ($tags[$i][0].length -eq 1) {
+                Write-Host " " -NoNewline
+            }
+            Write-Host $tags[$i][0] -NoNewline -ForegroundColor $tags[$i][2]
+            Write-Host ". " -NoNewline -ForegroundColor $tags[$i][2]
+            Write-Host $tags[$i][1] -ForegroundColor $tags[$i][2]
+        }
+    }
+    Write-Host "" 
+}
+
 function Show-SelectionPrompt {
     <#
     .SYNOPSIS
     Displays the selection prompt. Returns user input as a string.
     #>
 
+    param (
+        [Switch]$NoClear
+    )
+
     Write-Host "--------------------------------------------------------------------------------" -ForegroundColor DarkGray
 
-    Write-Host "Type a code and press Enter to tag a song." -ForegroundColor White
-
-    Write-Host "Type " -NoNewline -ForegroundColor Gray
-    Write-Host "clear " -NoNewLine -ForegroundColor Red
-    Write-Host "to start over." -ForegroundColor Gray
+    if (!$NoClear) {
+        Write-Host "Type a code and press Enter to tag a song." -ForegroundColor White
+    
+        Write-Host "Type " -NoNewline -ForegroundColor Gray
+        Write-Host "clear " -NoNewLine -ForegroundColor Red
+        Write-Host "to start over." -ForegroundColor Gray
+    }
 
     Write-Host "Type " -NoNewLine -ForegroundColor Gray
     Write-Host "awesome " -NoNewLine -ForegroundColor Cyan
@@ -203,27 +258,39 @@ function Set-Selection {
     Returns $TRUE if $userSelection matches any of the input codes found in the genre, tag and special category lists.
     #>
 
+    param (
+        [Switch]$NoGenre,
+        [Switch]$NoTag,
+        [Switch]$NoRating
+    )
+
     $local:foundCode = $FALSE
     for ($i = 0; ($i -lt $genres.Count) -or ($i -lt $tags.Count) -or ($i -lt $specialCategories.Count); $i++) {
         # Genre
-        if ($i -lt $genres.Count) {
-            if ($userSelection -eq $genres[$i][0]) {
-                $genreSelections[$i] = !$genreSelections[$i]
-                $foundCode = $TRUE
+        if (!$NoGenre) {
+            if ($i -lt $genres.Count) {
+                if ($userSelection -eq $genres[$i][0]) {
+                    $genreSelections[$i] = !$genreSelections[$i]
+                    $foundCode = $TRUE
+                }
             }
         }
         # Tag
-        if ($i -lt $tags.Count) {
-            if ($userSelection -eq $tags[$i][0]) {
-                $tagSelections[$i] = !$tagSelections[$i]
-                $foundCode = $TRUE
+        if (!$NoTag) {
+            if ($i -lt $tags.Count) {
+                if ($userSelection -eq $tags[$i][0]) {
+                    $tagSelections[$i] = !$tagSelections[$i]
+                    $foundCode = $TRUE
+                }
             }
         }
         # specialCategories
-        if ($i -lt $specialCategories.Count) {
-            if ($userSelection -eq $specialCategories[$i][0]) {
-                $specialCategorySelections[$i] = !$specialCategorySelections[$i]
-                $foundCode = $TRUE
+        if (!$NoRating) {
+            if ($i -lt $specialCategories.Count) {
+                if ($userSelection -eq $specialCategories[$i][0]) {
+                    $specialCategorySelections[$i] = !$specialCategorySelections[$i]
+                    $foundCode = $TRUE
+                }
             }
         }
     }
@@ -280,10 +347,10 @@ function Move-Song {
 
     param (
         [parameter(mandatory = $true)][string]$File,
-        [string] $Rating
+        [string]$Rating
     )
 
-    # Check to see if a selection has been made.
+    # Check to see if a genre selection has been made.
     if (!((Test-Selection -Selection $genreSelections) -or (Test-Selection -Selection $specialCategorySelections))) {
         Write-Host "No genres or special categories where selected." -ForegroundColor Red
         Start-Sleep -s 1
@@ -323,6 +390,94 @@ function Move-Song {
     Remove-Item $File
 }
 
+function Move-SongTagMode {
+    <#
+    .SYNOPSIS
+    Moves the song based on the user selections using Tag and Rating Only.
+
+    .PARAMETER File
+    The URL (string) of the target song to be moved.
+
+    .PARAMETER Rating
+    The rating subfolder that the song will be moved into.
+    #>
+
+    param (
+        [parameter(mandatory = $true)][string]$File,
+        [string]$Rating
+    )
+
+    # Check to see if a tag selection has been made.
+    if (!(Test-Selection -Selection $tagSelections)) {
+        Write-Host "No tags were selected." -ForegroundColor Red
+        Start-Sleep -s 1
+        throw "No tags where selected."
+    }
+
+    # Go through tags
+    for ($j = 0; $j -lt $tagSelections.Count; $j++) {
+        $currentTag = $tags[$j][1]
+        if ($tagSelections[$j]) {
+            Copy-Song -Subfolder "$taglessFolder - $currentTag" -Rating $Rating
+        }
+    }
+
+    # TODO: A way to check to see if the file has actually copied before deleting the source.
+   
+    Close-Song
+    Remove-Item $File
+}
+
+function Move-SongRatingMode {
+    <#
+    .SYNOPSIS
+    Moves the song based on the user selections using Rating Only.
+
+    .PARAMETER File
+    The URL (string) of the target song to be moved.
+
+    .PARAMETER Rating
+    The rating subfolder that the song will be moved into.
+    #>
+
+    param (
+        [parameter(mandatory = $true)][string]$File,
+        [string]$Rating
+    )
+   
+    Close-Song
+
+    $songParentPath = Split-Path -Path "$File"
+
+    if (!(Test-Path -Path "$songParentPath/$Rating")) {
+        New-Item -Path "$songParentPath" -Name "$Rating" -ItemType "directory" | Out-Null
+    }
+
+    Write-Host "Moving Song to Rating Folder..." -ForegroundColor Yellow
+    try {
+        Move-Item -Path $File -Destination "$songParentPath/$Rating" -ErrorAction Stop
+    }
+    catch {
+        Write-Host ""
+        Get-Error
+        Write-Host ""
+        Write-Host "Couldn't move file. Trying again..." -ForegroundColor Red
+        Write-Host "(Consider increasing waitTimeInMilliseconds.)" -ForegroundColor DarkRed
+        Write-Host ""
+        Show-AnyKey
+        try {
+            Move-Item -Path $File -Destination "$songParentPath/$Rating" -ErrorAction Stop
+        }
+        catch {
+            Write-Host ""
+            Get-Error
+            Write-Host ""
+            Write-Host "Still couldn't move file. Something else might be wrong." -ForegroundColor Red
+            Show-AnyKey
+        }
+    }
+}
+
 function Skip-Song {
     <#
     .SYNOPSIS
@@ -338,24 +493,24 @@ function Skip-Song {
 
     Close-Song
 
-    if (!(Test-Path -Path $skippedFolder)) {
-        New-Item -Path $destinationFolder -Name $skippedFolder -ItemType "directory" | Out-Null
+    if (!(Test-Path -Path "$skippedFolder")) {
+        New-Item -Path "$destinationFolder" -Name "$skippedFolder" -ItemType "directory" | Out-Null
     }
     
     Write-Host "Moving Song..." -ForegroundColor Yellow
     try {
-        Move-Item -Path $song -Destination $skippedFolder -ErrorAction Stop
+        Move-Item -Path $song -Destination "$destinationFolder/$skippedFolder" -ErrorAction Stop
     }
     catch {
         Write-Host ""
         Get-Error
         Write-Host ""
-        Write-Host "Couldn't move file. Trying again in 1 second." -ForegroundColor Red
+        Write-Host "Couldn't move file. Trying again..." -ForegroundColor Red
         Write-Host "(Consider increasing waitTimeInMilliseconds.)" -ForegroundColor DarkRed
         Write-Host ""
         Show-AnyKey
         try {
-            Move-Item -Path $song -Destination $skippedFolder -ErrorAction Stop
+            Move-Item -Path $song -Destination "$destinationFolder/$skippedFolder" -ErrorAction Stop
         }
         catch {
             Write-Host ""

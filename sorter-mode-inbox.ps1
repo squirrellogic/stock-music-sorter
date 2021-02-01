@@ -1,15 +1,15 @@
 # Stock Music Sorting Utility
 # Released by Squirrel Logic under the MIT License.
 
-# Function: Full Sort Mode
+# Function: Inbox Sort Mode
 
 # "sorter-config.ps1" is the configuration file. Edit that file to change genres, tags, and category/project folder names.
 
 # Don't edit the source code in this file unless you know what you are doing. 
 
-function Invoke-FullSort {
+function Invoke-InboxSort {
 
-    $songs = Get-ChildItem -Path "$sortFolder" -Include "*.flac", "*.ogg", "*.mp3", "*.wav", "*.aiff", "*.aac", "*.wma", "*.alac"   -Recurse
+    $songs = Get-ChildItem -Path "$sortFolder" -Include "*.flac", "*.ogg", "*.mp3", "*.wav", "*.aiff", "*.aac", "*.wma", "*.alac" -Recurse
 
     foreach ($song in $songs) {
         $doneWithSong = $FALSE

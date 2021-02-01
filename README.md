@@ -20,11 +20,12 @@ Here's an example of default folder setup. Again, the script folder name doesn't
 
 ```
 /Music Library Root Folder
-    /__scripts              <-- Put all script files here.
-    /__Inbox                <-- Music files to be sorted.
-    /Genre 1 - Tag 1        <-- Script will create these directories when necessary
-    /Genre 1 - Tag 2        <-- ''
-    /Genre 2 - Tag 1        <-- ''
+    /__scripts            <-- Put all script files here.
+    /__Inbox              <-- Music files to be sorted.
+    /_Folder Name         <-- Folders ignored by rating sort mode start with "_"
+    /Genre 1 - Tag 1      <-- Script will create these directories when necessary
+    /Genre 1 - Tag 2      <-- ''
+    /Genre 2 - Tag 1      <-- ''
 ```
 
 Once you've figured out a directory structure you are comfortable with (the location of the script folder, the inbox folder, and the root music library output folder), configure those location in the `sorter-config.ps1` file.
@@ -71,7 +72,7 @@ DarkBlue  DarkGreen  DarkCyan  DarkRed  DarkMagenta  DarkYellow  Gray
                                                                  DarkGray
 ```
 
-I consider DarkBlue and DarkGray to be too dark.
+I consider DarkBlue and DarkGray to be too dark with the default PowerShell theme. If you are using a terminal such as ConEmu with custom color scheme you'll have to decide on your own which colors yous shouldn't use.
 
 ## Running the Script
 
